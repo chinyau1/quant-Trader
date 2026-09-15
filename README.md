@@ -80,7 +80,11 @@
 **远程服务器一键部署**（Ubuntu / Debian）：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh | sudo bash
+# 在线部署
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/deploy.sh | sudo bash
+
+# 已部署服务器一键更新（不清除 data / logs / .env）
+cd /opt/quant-trader && sudo bash deploy/update.sh
 ```
 
 完成后打开 `http://<服务器IP>:8092`。细节见 [`deploy/README.md`](deploy/README.md)。

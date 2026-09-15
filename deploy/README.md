@@ -1,39 +1,39 @@
-# Quant-Trader 远程一键部署
+# Quant-Trader 远程部署
 
-面向新服务器（Ubuntu 22.04 / 24.04、Debian 12）。装 Docker、拉代码、构建镜像、初始化免费行情并启动常驻服务。
+面向新服务器（Ubuntu 22.04 / 24.04、Debian 12）。默认目录 `/opt/quant-trader`。
 
 本仓为 [guge199205-byte/quant-Trader](https://github.com/guge199205-byte/quant-Trader) 的 fork：<https://github.com/chinyau1/quant-Trader>
 
-## 一键安装
+## 选择部署方式
+
+| 方式 | 适用场景 | 入口 |
+| --- | --- | --- |
+| 在线部署 | 新服务器，装 Docker、拉代码、构建并启动 | `deploy.sh` |
+| 一键更新 | 已部署服务器更新代码和常驻服务，**不清除** `data/` `logs/` `.env` | `update.sh` |
+
+`full-deploy.sh` 仍可用，会转发到 `deploy.sh`。
+
+## 在线部署
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/deploy.sh | sudo bash
 ```
 
 带模型 Key（`sudo` 会丢掉环境变量，用 `env` 传入）：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh \
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/deploy.sh \
   | sudo env DEEPSEEK_API_KEY='sk-你的key' bash
-```
-
-国内访问 GitHub 不稳定时，换镜像仓库地址：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh \
-  | sudo env QT_REPO_URL='https://gitclone.com/github.com/chinyau1/quant-Trader.git' bash
 ```
 
 指定分支：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh \
-  | sudo bash -s -- --ref main
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/deploy.sh \
+  | sudo bash -s -- --ref main --force
 ```
 
-默认安装到 `/opt/quant-trader`。首次约 15–30 分钟（拉基础镜像 + 构建 + 行情）。
-
-## 部署完成后
+首次约 15–30 分钟。完成后：
 
 | 服务 | 地址 |
 |------|------|
@@ -41,39 +41,32 @@ curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/f
 | 交易智能体 dsh | `http://<服务器IP>:8093`（默认 `admin` / `admin123`） |
 | API | `http://<服务器IP>:8091` |
 
-密钥写在 `/opt/quant-trader/.env`。改完后：
+## 一键更新（不清除数据）
 
 ```bash
-cd /opt/quant-trader && docker compose up -d
+cd /opt/quant-trader
+sudo bash deploy/update.sh
 ```
-
-已有 QuantMind 数据时，把 `QUANTMIND_ROOT` 指到仓库根目录（脚本会探测 `/opt/quantmind` 和 `/home/zbox/projects/quantmind`）。本机 Windows 可在 `.env` 写：
 
 ```bash
-QUANTMIND_QUANTDB_DIR=D:/project/gitee/quantmind/data/quantdb
-QUANTMIND_ROOT=D:/project/gitee/quantmind
-QUANTMIND_DATA_DIR=D:/project/gitee/quantmind/data
+sudo bash deploy/update.sh --ref main
+sudo bash deploy/update.sh --force
+sudo bash deploy/update.sh --no-build
 ```
 
-## 更新（同一台机器再跑一遍）
+更新脚本会 `git fetch`、重建常驻容器，并在远程 `baymax-dsh` 里安装 `@xmanrui/dsh-im`。**不会** `docker compose down -v`，也不会删除 `data/`、`logs/`、`.env`、`dsh/root-dsh`。交易 agent（`--profile agents`）不会被自动拉起。
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh | sudo bash
-```
-
-会 `git pull`、按需重建镜像；已有 `.env` 和 `data/` 会保留。目录里有未提交改动时加 `--force`。
+装完后打开 `http://<服务器IP>:8093` → 设置 → IM机器人。跳过插件：`QT_SKIP_DSH_IM=true`。
 
 ## 常用变量
 
 | 变量 | 默认 | 说明 |
 |------|------|------|
-| `QT_PROJECT_DIR` | `/opt/quant-trader` | 部署目录 |
+| `QT_PROJECT_DIR` | `/opt/quant-trader`（update 默认为仓库根） | 部署目录 |
 | `QT_REPO_URL` | `https://github.com/chinyau1/quant-Trader.git` | clone 地址 |
 | `QT_REF` | `main` | 分支 / tag |
 | `QT_DOCKER_MIRROR` | DaoCloud | Docker Hub 加速 |
-| `QT_SKIP_BOOTSTRAP` | `false` | `true` 跳过免费行情 |
-| `QT_SKIP_BUILD` | `false` | `true` 不重建镜像 |
+| `QT_SKIP_BOOTSTRAP` | `false` | `true` 跳过免费行情（仅 deploy.sh） |
 | `QT_FORCE` | `false` | 覆盖未提交代码 |
-| `QT_OPEN_DSH_LAN` | `false` | `true` 把 dsh-proxy 绑到局域网 IP |
 
 手工排障见 [`docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md)。
