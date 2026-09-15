@@ -77,6 +77,14 @@
 > 无需数据源 Key、无需量化仓库——内置一键初始化脚本走免费接口拉全市场日线。
 > 🤖 **AI 可执行部署 runbook**(每步含命令/预期输出/失败处理):[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
+**远程服务器一键部署**（Ubuntu / Debian）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh | sudo bash
+```
+
+完成后打开 `http://<服务器IP>:8092`。细节见 [`deploy/README.md`](deploy/README.md)。
+
 **第 1 步:环境准备** — Docker ≥ 24(含 compose 插件)
 
 **第 2 步:拉代码 + 填密钥**

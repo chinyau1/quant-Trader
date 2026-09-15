@@ -80,12 +80,11 @@ services:
       - ./logs:/app/logs
       - ./configs:/app/configs
       - ./config:/app/config
-      # 数据平台（可选增强）：quantmind 仓库 parquet 只读直挂。
-      # 客户无 quantmind 仓库时 Docker 自动创建空目录，实盘/因子面板自动降级，不阻塞启动
-      - /home/zbox/projects/quantmind/data/quantdb:/data/quantdb:ro
-      - /home/zbox/projects/quantmind/data/quantus:/data/quantus:ro
-      - /home/zbox/projects/quantmind/data/quanthk:/data/quanthk:ro
-      - /home/zbox/projects/quantmind/data/quantfutures:/data/quantfutures:ro
+      # 数据平台（可选）：QuantMind parquet。路径由 .env 覆盖；缺失时 Docker 建空目录，面板降级。
+      - ${QUANTMIND_QUANTDB_DIR:-/opt/quantmind/data/quantdb}:/data/quantdb:ro
+      - ${QUANTMIND_QUANTUS_DIR:-/opt/quantmind/data/quantus}:/data/quantus:ro
+      - ${QUANTMIND_QUANTHK_DIR:-/opt/quantmind/data/quanthk}:/data/quanthk:ro
+      - ${QUANTMIND_QUANTFUTURES_DIR:-/opt/quantmind/data/quantfutures}:/data/quantfutures:ro
     ports:
       - "8091:8091"
 
@@ -171,8 +170,8 @@ services:
       #   ① /quantmind 只读挂载 → 技能契约脚本源 `/quantmind/skills/<name>/scripts/`
       #   ② /data 读写 → 报告落盘（quantmind 股票报告页可见）
       #   ③ docker CLI + socket → 技能契约「docker exec quantmind」跑重依赖取数脚本
-      - /home/zbox/projects/quantmind:/quantmind:ro
-      - /home/zbox/projects/quantmind/data:/data:rw
+      - ${QUANTMIND_ROOT:-/opt/quantmind}:/quantmind:ro
+      - ${QUANTMIND_DATA_DIR:-/opt/quantmind/data}:/data:rw
       - /usr/bin/docker:/usr/bin/docker:ro
       - /var/run/docker.sock:/var/run/docker.sock
 

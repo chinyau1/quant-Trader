@@ -8,6 +8,15 @@
 执行环境：Linux（Debian/Ubuntu 系）+ Docker ≥ 24 + docker compose 插件。
 全程在项目根目录执行（下称 `$ROOT`）。
 
+**新服务器推荐一键部署**（装 Docker、拉代码、构建、初始化免费行情）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/chinyau1/quant-Trader/main/deploy/full-deploy.sh | sudo bash
+```
+
+带 Key：`curl ... | sudo env DEEPSEEK_API_KEY='sk-xxx' bash`。说明见 [`deploy/README.md`](../deploy/README.md)。
+下面 0–8 节是同一流程的逐步版，排障时按节执行。
+
 ---
 
 ## 0. 前置检查

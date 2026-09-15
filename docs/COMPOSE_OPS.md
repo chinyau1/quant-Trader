@@ -2,6 +2,7 @@
 
 ## 事实源
 - **compose 文件唯一事实源 = 仓库根 `docker-compose.yml`**（BayMax-Trader 下不再维护副本）。
+- QuantMind 挂载走 `.env` 的 `QUANTMIND_ROOT` / `QUANTMIND_QUANTDB_DIR` 等（默认 `/opt/quantmind`）。zbox 生产机若数据在 `/home/zbox/projects/quantmind`，`.env` 必须写上该路径，否则会挂到空目录。新机器用 [`deploy/full-deploy.sh`](../deploy/full-deploy.sh) 会自动探测。
 - 所有容器操作统一：
   ```bash
   cd /home/zbox/quant-Trader
